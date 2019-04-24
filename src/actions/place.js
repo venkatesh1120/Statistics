@@ -2,7 +2,7 @@ import { login, errorLogin,
   FETCH_FACTORIES_BEGIN, FETCH_FACTORIES_SUCCESS, FETCH_FACTORIES_FAILURE,
     FETCH_FACTORIES_DETAILS_BEGIN, FETCH_FACTORIES_DETAILS_SUCCESS, FETCH_FACTORIES_DETAILS_FAILURE,
     SET_SELECTED_ITEM,
-    FETCH_MARKETS_BEGIN, FETCH_MARKETS_SUCCESS, FETCH_MARKETS_FAILURE
+    FETCH_MARKETS_BEGIN, FETCH_MARKETS_SUCCESS, FETCH_MARKETS_FAILURE,CLEARDATA
  } from './types';
 
 export const loginUser = (data) => {
@@ -20,6 +20,14 @@ export const postLoginError = (message) => {
     message: message
   };
 }
+
+export const clearData = () => {
+  return {
+    type: CLEARDATA
+  };
+}
+
+
 
 function handleErrors(response) {
   if (!response.ok) {

@@ -5,7 +5,7 @@ import { login,logout, errorLogin,
   FETCH_FACTORIES_BEGIN, FETCH_FACTORIES_SUCCESS, FETCH_FACTORIES_FAILURE,
   FETCH_FACTORIES_DETAILS_BEGIN, FETCH_FACTORIES_DETAILS_SUCCESS, FETCH_FACTORIES_DETAILS_FAILURE,
   SET_SELECTED_ITEM,
-  FETCH_MARKETS_BEGIN, FETCH_MARKETS_SUCCESS, FETCH_MARKETS_FAILURE
+  FETCH_MARKETS_BEGIN, FETCH_MARKETS_SUCCESS, FETCH_MARKETS_FAILURE, CLEARDATA
 } from '../actions/types';
 
 const initialState = {
@@ -39,6 +39,11 @@ const statisticsReducer = (state = initialState, action) => {
       ...state,
       errormessage: action.message
     };
+
+    case CLEARDATA:
+    return {
+      ...initialState
+    }
     case logout :
     return {
       ...state,

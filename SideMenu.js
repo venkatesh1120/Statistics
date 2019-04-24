@@ -5,6 +5,8 @@ import {NavigationActions} from 'react-navigation';
 import {ScrollView, Text, View, Button} from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { connect } from 'react-redux';
+//import { clearData } from '../src/actions/place';
+import {clearData} from './src/actions/place';
 
 class SideMenu extends Component {
   navigateToScreen = (route,args) => () => {
@@ -16,6 +18,11 @@ class SideMenu extends Component {
     });
 
     this.props.navigation.dispatch(navigateAction);
+  }
+
+  clearDataAndLogout = () => {
+    this.props.clearData();
+    this.props.navigation.navigate("Auth");
   }
 
   render () {
@@ -38,6 +45,9 @@ class SideMenu extends Component {
                   </Text>
 
       )}
+      <Text style={styles.navItemStyle} onPress={this.clearDataAndLogout} >
+                  Sign Out
+                  </Text>
         </ScrollView>
       </View>
     );
@@ -57,6 +67,9 @@ const mapDispatchToProps = dispatch => {
   return {
     fetchFactories: (token) => {
       dispatch(fetchFactories(token));
+    },
+    clearData: () => {
+      dispatch(clearData());
     }
   }
 }
