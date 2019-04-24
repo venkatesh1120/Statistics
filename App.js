@@ -15,11 +15,14 @@ import stackNav from './src/components/Home';
 
 const drawernav = createDrawerNavigator({
   Home: {
-      screen: Factories,
-    },
-    Factory: {
-        screen: FactoryDetails,
+    screen: createStackNavigator({
+      Home: {
+        screen: Factories,
       },
+      Factory: {
+          screen: FactoryDetails,
+        }}),
+  },
     initialRouteName : 'Home'
   }, {
     contentComponent: SideMenu,

@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { AppRegistry, Text, TextInput, View, Button } from 'react-native';
 import { createDrawerNavigator } from 'react-navigation';
 import { connect } from 'react-redux';
-import { fetchFactories } from '../actions/place';
+import { fetchFactories, getMarketDetails } from '../actions/place';
 
 class Factories extends Component {
   constructor(props) {
@@ -14,6 +14,7 @@ class Factories extends Component {
 
    fetchFactories = () => {
      this.props.fetchFactories(this.props.userdetails.token);
+     this.props.getMarketDetails(this.props.userdetails.token);
    }
 
     render() {
@@ -58,7 +59,11 @@ const mapDispatchToProps = dispatch => {
   return {
     fetchFactories: (token) => {
       dispatch(fetchFactories(token));
+    },
+    getMarketDetails: (token) => {
+      dispatch(getMarketDetails(token));
     }
+
   }
 }
 

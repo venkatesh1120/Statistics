@@ -12,27 +12,18 @@ import {
   ContributionGraph,
   StackedBarChart
 } from 'react-native-chart-kit';
+import { fetchFactoryDetails, setSelectedItem } from '../actions/place';
 
 class Factories extends Component {
   constructor(props) {
      super(props);
-     this.state = {factory: {statistics: {}}, selectedItem: null, markets: []};
+     this.state = { selectedItem: null, markets: []};
+     // this.selectedItem = null;
      this.fetchFactoryDetails();
    }
 
    fetchFactoryDetails = () => {
-      fetch('https://code-challenge.quizrr.se/api/factory/'+this.props.navigation.getParam('itemId'), {
-    method: 'GET',
-    headers: {
-     Accept: 'application/json',
-     'Content-Type': 'application/json',
-     Authorization: "Bearer " + this.props.userdetails.token
-    },
-    }).then((response) => response.json())
-     .then((responseJson) => {
-
-      this.setState({factory:   responseJson});
-     });
+    this.props.fetchFactoryDetails(this.props.userdetails.token, this.props.navigation.getParam('itemId'));
    }
 
    getMarketDetails = () => {
@@ -45,24 +36,36 @@ class Factories extends Component {
     },
     }).then((response) => response.json())
      .then((responseJson) => {
-        const factMarkets = this.state.factory.markets;
-       const marketsList = responseJson.filter(function(value){
-         return factMarkets.indexOf(parseInt(value.id)) > -1;
-       });
-      this.setState({markets:   marketsList});
+
+      this.setState({markets:   responseJson});
 
      });
    }
 
-render() {
-  let totalData = {};
-  let keys = Object.keys(this.state.factory.statistics);
-  let currentSelectedItem = this.state.selectedItem ? this.state.selectedItem : keys[0] || null;
+  //  const factMarkets = this.props.factory.markets;
+  // const marketsList = responseJson.filter(function(value){
+  //   return factMarkets.indexOf(parseInt(value.id)) > -1;
+  // });
 
-  if(currentSelectedItem)
+render() {
+
+  let totalData = {};
+  let keys = Object.keys(this.props.factory.statistics);
+  let currentSelectedItem = this.props.selectedItem ? this.props.selectedItem : keys[0] || null;
+   const factMarkets = this.props.factory.markets;
+  let marketsList = [];
+  console.log("markets list");
+  console.log(factMarkets);
+  if(factMarkets){
+  marketsList = this.props.markets.filter(function(value){
+    return factMarkets.indexOf(parseInt(value.id)) > -1;
+  });
+}
+  if(currentSelectedItem && this.props.factory.statistics[currentSelectedItem])
   {
+
     let data = []
-    const sample = this.state.factory.statistics[currentSelectedItem];
+    const sample = this.props.factory.statistics[currentSelectedItem];
     const mapLabels = Object.keys(sample).map(function(s){
         data.push([sample[s].count.male, sample[s].count.female]);
         return s;
@@ -76,7 +79,10 @@ render() {
   barColors: ['#dfe4ea', '#ced6e0', '#a4b0be'],
   };
   }
-    const mapLabels = Object.keys(this.state.factory.statistics).map(function(s){ return s; });
+  else {
+    this.currentSelectedItem = null;
+  }
+    const mapLabels = Object.keys(this.props.factory.statistics).map(function(s){ return s; });
       const data ={
     labels: ['Test1', 'Test2'],
     legend: ['L1', 'L2', 'L3'],
@@ -90,34 +96,30 @@ render() {
       backgroundGradientFrom: '#1E2923',
       backgroundGradientTo: '#08130D',
       color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-      strokeWidth: 2 
+      strokeWidth: 2
     }
         return (
           <View >
         <Picker
+        selectedValue={this.props.selectedItem}
   style={{height: 50, width: 100}}
-  onValueChange={(itemValue, itemIndex) =>
-    this.setState({selectedItem: itemValue, markets: []})
+  onValueChange={(itemValue, itemIndex) =>{
+    //this.selectedItem= itemValue;
+    this.props.setSelectedItem(itemValue);
+    this.setState({ markets: []});}
   }>
-{   Object.keys(this.state.factory.statistics).map(function(s){ return <Picker.Item key={s} label={s} value={s} /> })}
+{   Object.keys(this.props.factory.statistics).map(function(s){ return <Picker.Item key={s} label={s} value={s} /> })}
 </Picker>
-{currentSelectedItem ? <StackedBarChart
+{currentSelectedItem && totalData.data  ? <StackedBarChart
 data={totalData}
 width={Dimensions.get('window').width}
 height={220}
 chartConfig={chartConfig}
 /> : null}
 {
-this.state.markets.length > 0 ?
-  this.state.markets.map(function(s, index){ return <Text key={index}>{s.name}</Text>; }) :
-<Button
-title="Click for market details"
-onPress={ () => {
-this.getMarketDetails();
-}}
-color="#841584"
-/>
-
+marketsList.length > 0 ?
+  marketsList.map(function(s, index){ return <Text key={index}>{s.name}</Text>; }) :
+null
 }
 
 
@@ -125,50 +127,27 @@ color="#841584"
         )
     }
 
-// render() {
-// const mapLabels = Object.keys(this.state.factory.statistics).map(function(s){ return s; }
-//   const data ={
-// labels: ['Test1', 'Test2'],
-// legend: ['L1', 'L2', 'L3'],
-// data: [
-// [60, 60, 60],
-// [30,30,60],
-// ],
-// barColors: ['#dfe4ea', '#ced6e0', '#a4b0be'],
-// };
-// const chartConfig = {
-//   backgroundGradientFrom: '#1E2923',
-//   backgroundGradientTo: '#08130D',
-//   color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-//   strokeWidth: 2 // optional, default 3
-// }
-//         return (
-//           <StackedBarChart
-// data={data}
-// width={Dimensions.get('window').width}
-// height={220}
-// chartConfig={chartConfig}
-// />
-// );
-//     }
-
 }
 
 const mapStateToProps = state => {
   return {
     userdetails: state.sample.userdetails,
+    factory: state.sample.factory,
+    markets: state.sample.markets,
+    selectedItem: state.sample.selectedItem,
     errormessage: state.sample.errormessage
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    loginUser: (data) => {
-      dispatch(loginUser(data));
+    fetchFactoryDetails: (token, itemId) => {
+      dispatch(fetchFactoryDetails(token, itemId));
     },
-    postLoginError: (message) => {
-      dispatch(postLoginError(message));
+    setSelectedItem: (item) => {
+      dispatch(setSelectedItem(item));
     }
+
   }
 }
 

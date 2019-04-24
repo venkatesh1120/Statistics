@@ -8,12 +8,13 @@ import { connect } from 'react-redux';
 
 class SideMenu extends Component {
   navigateToScreen = (route,args) => () => {
-    console.log("item clickd");
+
     const navigateAction = NavigationActions.navigate({
       routeName: route,
-      params: args
+      params: args,
+      key: args.itemId
     });
-    console.log(this.props);
+
     this.props.navigation.dispatch(navigateAction);
   }
 
@@ -24,6 +25,10 @@ class SideMenu extends Component {
                    Menu
       </Text>
         <ScrollView>
+        <Text style={styles.navItemStyle} onPress={this.navigateToScreen('Home', {
+                    })} >
+                    HOME
+                    </Text>
       {  this.props.factories.map((factory) =>
 
       <Text key={factory.id} style={styles.navItemStyle} onPress={this.navigateToScreen('Factory', {
